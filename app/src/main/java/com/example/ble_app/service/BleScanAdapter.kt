@@ -1,5 +1,6 @@
 package com.example.ble_app.service
 
+import android.bluetooth.BluetoothDevice
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.ble_app.R
 import org.w3c.dom.Text
 
-class BleScanAdapter(private val devices : List<String>, private  val onConnect : (String) -> Unit) : RecyclerView.Adapter<BleScanAdapter.ViewHolder>() {
+class BleScanAdapter(private val devices : MutableList<BluetoothDevice>,private  val onConnect : (BluetoothDevice) -> Unit) : RecyclerView.Adapter<BleScanAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val deviceName : TextView = view.findViewById<TextView>(R.id.device_name)
@@ -30,7 +31,7 @@ class BleScanAdapter(private val devices : List<String>, private  val onConnect 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val device = devices[position]
-        holder.deviceName.text = device
+        holder.deviceName.text = devices[position].name
 
         holder.button.setOnClickListener {
             onConnect(device)
@@ -39,4 +40,17 @@ class BleScanAdapter(private val devices : List<String>, private  val onConnect 
 
 
     override fun getItemCount() = devices.size
+
+    fun addDevice(device: BluetoothDevice) {
+        if (!devices.any { it.address == device.address }) {
+            devices.add(device)
+            notifyItemInserted(devices.size - 1)
+        }
+    }
+
+    fun clearDevices() {
+        val size = devices.size
+        devices.clear()
+        notifyItemRangeRemoved(0, size)
+    }
 }
